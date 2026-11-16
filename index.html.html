@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2/7–2/13 東京・富士山・日光 7天6夜 孝親自由行手冊</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts: Noto Sans TC 確保繁體中文與日文極佳易讀性 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    colors: {
+                        washi: '#FAF8F5',      // 日系和紙米白底色
+                        ink: '#222629',        // 高對比墨黑文字
+                        pine: '#2B4C3F',       // 明治神宮/日光深墨綠
+                        fuji: '#2B547E',       // 富士山靛藍
+                        amberWarm: '#D97706',  // 暖陽琥珀強調色
+                        cardBg: '#FFFFFF',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 基礎字體與長輩放大字體切換支援 */
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+        html.font-large {
+            font-size: 19.5px; /* 一鍵放大所有 rem 比例文字，適合長輩閱讀 */
+        }
+        body {
+            background-color: #FAF8F5;
+            color: #222629;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* 隱藏水平捲動條但保留滑動功能 (手機版分頁列) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 卡片微陰影與圓角質感 */
+        .jp-card {
+            background: #FFFFFF;
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(34, 38, 41, 0.05);
+            border: 1px solid rgba(43, 76, 63, 0.12);
+        }
+        /* 步驟連接線 */
+        .timeline-line {
+            position: relative;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 1.05rem;
+            top: 2rem;
+            bottom: -0.5rem;
+            width: 2px;
+            background-color: #CBD5E1;
+        }
+        .timeline-item:last-child .timeline-line::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="antialiased pb-20">
+
+    <!-- 複製成功提示框 (Toast，取代 alert) -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-pine text-white px-5 py-3 rounded-full shadow-xl font-bold text-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center gap-2">
+        <span>✅</span>
+        <span id="toast-msg">已複製到剪貼簿！</span>
+    </div>
+
+    <!-- 全螢幕放大字卡彈窗 (給日本司機或店員看) -->
+    <div id="flashcard-modal" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center p-4" onclick="closeFlashcard()">
+        <div class="bg-white w-full max-w-lg rounded-2xl p-6 md:p-8 text-center shadow-2xl border-4 border-fuji" onclick="event.stopPropagation()">
+            <p id="fc-subtitle" class="text-sm font-bold text-fuji mb-3 tracking-wider">請出示給計程車司機看</p>
+            <div id="fc-jp" class="text-3xl md:text-4xl font-black text-ink leading-snug my-4 py-4 bg-washi rounded-xl border border-slate-200 px-3">
+                ホテルマンデープレミアム上野御徒町までお願いします。
+            </div>
+            <p id="fc-zh" class="text-base text-slate-600 font-medium mb-6">（請載我們到 hotel MONday Premium 上野御徒町）</p>
+            <button onclick="closeFlashcard()" class="w-full py-3.5 bg-pine text-white font-bold rounded-xl text-lg active:scale-95 transition">
+                關閉畫面
+            </button>
+        </div>
+    </div>
+
+    <!-- 頂部 Hero 資訊看板 -->
+    <header class="bg-gradient-to-br from-pine via-[#244446] to-fuji text-white pt-6 pb-8 px-4 shadow-md">
+        <div class="max-w-4xl mx-auto">
+            <!-- 頂部工具列：標籤與字體大小切換 -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <span class="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wide">
+                    <span>🇯🇵</span> 2/7 – 2/13（7天6夜）｜ 3位大人孝親行
+                </span>
+                
+                <!-- 字體放大切換按鈕 -->
+                <div class="inline-flex bg-black/25 p-1 rounded-xl border border-white/20" role="group" aria-label="字體大小切換">
+                    <button id="btn-font-normal" onclick="setFontSize('normal')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-pine shadow transition">
+                        標準字體
+                    </button>
+                    <button id="btn-font-large" onclick="setFontSize('large')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white/90 hover:text-white transition">
+                        🔍 長輩加大字
+                    </button>
+                </div>
+            </div>
+
+            <!-- 主標題 -->
+            <h1 class="text-2xl md:text-3xl font-black tracking-tight mb-2">
+                東京・富士山・日光 自由行手冊
+            </h1>
+            <p class="text-white/85 text-sm md:text-base mb-5">
+                連住上野免搬行李・看天氣彈性衝富士山・無階梯輕鬆走
+            </p>
+
+            <!-- 主要連住飯店資訊卡 + 一鍵複製與司機字卡 -->
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <div class="text-xs text-amber-300 font-bold mb-0.5">🏨 東京連住基地（2/7–2/9、2/11–2/13）</div>
+                        <div class="text-lg font-bold">hotel MONday Premium 上野御徒町</div>
+                        <div class="text-xs md:text-sm text-white/90 mt-1 select-all" id="hotel-address">
+                            〒110-0016 東京都台東区台東3-41-7
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 shrink-0">
+                        <button onclick="copyText('〒110-0016 東京都台東区台東3-41-7', '已複製飯店日文地址')" class="flex-1 md:flex-none bg-white text-pine hover:bg-amber-50 font-bold px-3.5 py-2.5 rounded-xl text-xs md:text-sm shadow active:scale-95 transition flex items-center justify-center gap-1.5">
+                            <span>📋</span> 複製日文地址
+                        </button>
+                        <button onclick="openFlashcard('請出示給計程車司機看', 'ホテルマンデープレミアム上野御徒町までお願いします。\n（〒110-0016 東京都台東区台東3-41-7）', '請載我們到 hotel MONday Premium 上野御徒町')" class="flex-1 md:flex-none bg-amberWarm text-white hover:bg-amber-600 font-bold px-3.5 py-2.5 rounded-xl text-xs md:text-sm shadow active:scale-95 transition flex items-center justify-center gap-1.5">
+                            <span>🚕</span> 放大給司機看
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 黏性分頁導覽列 (Sticky Navigation Tabs) -->
+    <nav class="sticky top-0 z-40 bg-washi/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-2">
+            <div class="flex overflow-x-auto no-scrollbar py-2 gap-1.5 md:gap-2" id="tab-container">
+                <button onclick="switchTab('overview')" data-tab="overview" class="tab-btn shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm transition bg-pine text-white shadow-sm">
+                    🗓️ 總覽骨架
+                </button>
+                <button onclick="switchTab('day1')" data-tab="day1" class="tab-btn shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm transition bg-white text-ink hover:bg-slate-100 border border-slate-200">
+                    🛍️ Day 1 上野採買
+                </button>
+                <button onclick="switchTab('fuji')" data-tab="fuji" class="tab-btn shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm transition bg-white text-ink hover:bg-slate-100 border border-slate-200">
+                    🗻 富士山攻略
+                </button>
+                <button onclick="switchTab('nikko')" data-tab="nikko" class="tab-btn shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm transition bg-white text-ink hover:bg-slate-100 border border-slate-200">
+                    ⛩️ 日光二日遊
+                </button>
+                <button onclick="switchTab('tips')" data-tab="tips" class="tab-btn shrink-0 px-4 py-2.5 rounded-xl font-bold text-sm transition bg-white text-ink hover:bg-slate-100 border border-slate-200">
+                    🚄 交通與指路卡
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區塊 -->
+    <main class="max-w-4xl mx-auto px-4 pt-6 space-y-6">
+
+        <!-- ========================================== -->
+        <!-- 分頁 1：總覽骨架 (Overview)                 -->
+        <!-- ========================================== -->
+        <section id="tab-overview" class="tab-panel space-y-5">
+            <!-- 彈性天氣日互動模擬器 -->
+            <div class="jp-card p-4 md:p-5 border-l-4 border-l-fuji bg-gradient-to-r from-blue-50/70 to-white">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-base md:text-lg font-black text-fuji flex items-center gap-1.5">
+                            <span>⚡</span> 富士山「看天氣彈性調動」模擬器
+                        </h2>
+                        <p class="text-xs md:text-sm text-slate-600 mt-1">
+                            2/8、2/9、2/12 皆住上野且無綁定外宿。抵達東京後看「富士山能見度預報」，哪天大晴天就點下方按鈕切換：
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 shrink-0">
+                        <button onclick="setFujiDay('2/9')" id="fuji-opt-2-9" class="fuji-day-btn px-3 py-2 rounded-xl text-xs font-bold bg-fuji text-white shadow transition">
+                            預設：2/9(一) 衝富士
+                        </button>
+                        <button onclick="setFujiDay('2/8')" id="fuji-opt-2-8" class="fuji-day-btn px-3 py-2 rounded-xl text-xs font-bold bg-white text-fuji border border-fuji/30 hover:bg-blue-50 transition">
+                            若 2/8(日) 晴天
+                        </button>
+                        <button onclick="setFujiDay('2/12')" id="fuji-opt-2-12" class="fuji-day-btn px-3 py-2 rounded-xl text-xs font-bold bg-white text-fuji border border-fuji/30 hover:bg-blue-50 transition">
+                            若 2/12(四) 晴天
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7天行程卡片列表 -->
+            <div id="schedule-list" class="space-y-3.5">
+                <!-- 由 JavaScript 動態渲染支援一鍵切換天氣日 -->
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 分頁 2：Day 1 上野採買 (2/7)               -->
+        <!-- ========================================== -->
+        <section id="tab-day1" class="tab-panel hidden space-y-6">
+            <div class="jp-card p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span class="bg-pine text-white text-xs font-bold px-3 py-1 rounded-full">2/7 (六) 下午至晚上</span>
+                    <span class="text-xs font-bold text-amberWarm">✨ 策略：由最遠一路買回飯店，零回頭路</span>
+                </div>
+                <h2 class="text-xl font-black text-ink mb-2">上野周邊逛街 ＋ 阿美橫町順路動線</h2>
+                <p class="text-sm text-slate-600 mb-5">
+                    2月冬季不忍池荷葉枯黃且湖邊風冷，建議略過不忍池，把體力留給地圖上最精華的採買點。以下動線越晚越靠近飯店，買大包小包不用提遠路！
+                </p>
+
+                <!-- 逐步路線時間軸 -->
+                <div class="space-y-5">
+                    <!-- 站點 1 -->
+                    <div class="timeline-item flex gap-3.5">
+                        <div class="timeline-line flex flex-col items-center">
+                            <div class="w-9 h-9 rounded-full bg-pine text-white font-black text-sm flex items-center justify-center shrink-0 z-10">1</div>
+                        </div>
+                        <div class="flex-1 pb-2">
+                            <div class="text-xs font-bold text-pine">14:30 ｜ 飯店放行李出發</div>
+                            <h3 class="text-base font-black mt-0.5">直達最遠「右上角星星點 (🌟)」</h3>
+                            <p class="text-sm text-slate-600 mt-1">
+                                從飯店大門左轉，沿寬敞平坦的大馬路「昭和通」一路往北直走到底（約 13–15 分鐘，穿過高架橋下即達 JR 上野站東側入谷口周邊）。趁剛開始體力最好先解決最遠點。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 站點 2 -->
+                    <div class="timeline-item flex gap-3.5">
+                        <div class="timeline-line flex flex-col items-center">
+                            <div class="w-9 h-9 rounded-full bg-pine text-white font-black text-sm flex items-center justify-center shrink-0 z-10">2</div>
+                        </div>
+                        <div class="flex-1 pb-2">
+                            <div class="text-xs font-bold text-amberWarm">15:15 ｜ 趁 18:00 攤販打烊前先逛！</div>
+                            <h3 class="text-base font-black mt-0.5">阿美橫町主街（由北往南逛）</h3>
+                            <p class="text-sm text-slate-600 mt-1">
+                                往西穿過 JR 上野站周邊，從北端入口一路往南逛向御徒町站。必買現切哈密瓜/草莓、傳統乾貨，以及平價零食伴手禮大本營 <strong>「二木菓子」</strong>（記得 19:00 前結帳退稅）。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 站點 3 -->
+                    <div class="timeline-item flex gap-3.5">
+                        <div class="timeline-line flex flex-col items-center">
+                            <div class="w-9 h-9 rounded-full bg-pine text-white font-black text-sm flex items-center justify-center shrink-0 z-10">3</div>
+                        </div>
+                        <div class="flex-1 pb-2">
+                            <div class="text-xs font-bold text-pine">17:15 ｜ 傍晚轉入全室內吹暖氣</div>
+                            <h3 class="text-base font-black mt-0.5">PARCO_ya 上野 & 松坂屋百貨</h3>
+                            <p class="text-sm text-slate-600 mt-1">
+                                逛到阿美橫町南端（JR 御徒町站旁）過馬路即達。天黑氣溫下降，進室內百貨逛街舒適又有椅子可歇腳與乾淨洗手間（百貨購物區 20:00 打烊）。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 站點 4 -->
+                    <div class="timeline-item flex gap-3.5">
+                        <div class="timeline-line flex flex-col items-center">
+                            <div class="w-9 h-9 rounded-full bg-amberWarm text-white font-black text-sm flex items-center justify-center shrink-0 z-10">4</div>
+                        </div>
+                        <div class="flex-1 pb-2">
+                            <div class="text-xs font-bold text-amberWarm">18:30 ｜ 晚餐時間（自存地圖標記名店）</div>
+                            <h3 class="text-base font-black mt-0.5">Negishi 牛舌 或 燒肉陽山道</h3>
+                            <ul class="text-sm text-slate-600 mt-1 space-y-1 list-disc list-inside">
+                                <li><strong>Negishi 牛舌（ねぎし）</strong>：炭烤牛舌定食附山藥泥、麥飯與牛尾湯，清爽不油膩，長輩接受度最高。</li>
+                                <li><strong>燒肉陽山道（上野本店/站前店）</strong>：老字號黑毛和牛燒肉，環境舒適。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 站點 5 -->
+                    <div class="timeline-item flex gap-3.5">
+                        <div class="timeline-line flex flex-col items-center">
+                            <div class="w-9 h-9 rounded-full bg-fuji text-white font-black text-sm flex items-center justify-center shrink-0 z-10">5</div>
+                        </div>
+                        <div class="flex-1 pb-2">
+                            <div class="text-xs font-bold text-fuji">19:30 ｜ 營業至 21:00，款式超齊全</div>
+                            <h3 class="text-base font-black mt-0.5">mont-bell 御徒町店（3層樓旗艦店）</h3>
+                            <p class="text-sm text-slate-600 mt-1">
+                                就在松坂屋正對面、御徒町站南口旁（離飯店僅 5 分鐘）。可幫長輩試穿輕量羽絨外套、防風層與防滑保暖鞋，後面去富士山與日光剛好穿！（註：直營店無退稅，但日幣定價已是台灣 6–8 折）。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 站點 6 -->
+                    <div class="timeline-item flex gap-3.5">
+                        <div class="flex flex-col items-center">
+                            <div class="w-9 h-9 rounded-full bg-pine text-white font-black text-sm flex items-center justify-center shrink-0 z-10">6</div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-xs font-bold text-pine">20:30 ｜ 飯店旁最後一站，買完走 2 分鐘回房！</div>
+                            <h3 class="text-base font-black mt-0.5">多慶屋 TAKEYA 1（食品・生活館）</h3>
+                            <p class="text-sm text-slate-600 mt-1">
+                                就在飯店旁十字路口！營業至 21:00 左右，一次買齊藥妝、保健食品、抹茶粉與飲料並辦退稅，買完過馬路走 2 分鐘直接回飯店休息。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商店營業時間速查表 -->
+            <div class="jp-card p-5">
+                <h3 class="text-lg font-black text-ink mb-3 flex items-center gap-2">
+                    <span>🕒</span> 上野周邊各類店家打烊時間速查
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b-2 border-slate-200 text-pine">
+                                <th class="py-2.5 pr-2 font-black">店家類型</th>
+                                <th class="py-2.5 px-2 font-black">代表店家</th>
+                                <th class="py-2.5 pl-2 font-black">常見打烊時間</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="bg-amber-50/60">
+                                <td class="py-2.5 pr-2 font-bold text-amberWarm">傳統市場攤販</td>
+                                <td class="py-2.5 px-2">阿美橫町海鮮、乾貨、水果攤</td>
+                                <td class="py-2.5 pl-2 font-bold text-red-600">18:00 ～ 19:00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-2 font-bold">零食伴手禮</td>
+                                <td class="py-2.5 px-2">二木菓子（ビッグ館/第一營業所）</td>
+                                <td class="py-2.5 pl-2 font-bold">19:30 ～ 20:00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-2 font-bold">百貨商場</td>
+                                <td class="py-2.5 px-2">PARCO_ya 上野、松坂屋上野店</td>
+                                <td class="py-2.5 pl-2 font-bold">20:00（餐廳至 22:00）</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-2 font-bold">戶外服飾/綜合</td>
+                                <td class="py-2.5 px-2">mont-bell 御徒町、多慶屋 TAKEYA 1</td>
+                                <td class="py-2.5 pl-2 font-bold">21:00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-2 font-bold">藥妝與超市</td>
+                                <td class="py-2.5 px-2">松本清、大國藥妝、吉池生鮮超市</td>
+                                <td class="py-2.5 pl-2 font-bold">21:30 ～ 22:00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 分頁 3：富士山攻略 (山中湖白鳥濱+忍野八海)  -->
+        <!-- ========================================== -->
+        <section id="tab-fuji" class="tab-panel hidden space-y-6">
+            <!-- 關鍵購票與下車提醒卡片 -->
+            <div class="jp-card p-5 border-2 border-fuji bg-blue-50/40">
+                <div class="flex items-center gap-2 text-fuji font-black text-lg mb-2">
+                    <span>🎫</span> 高速巴士買票 3 大黃金重點（請務必核對）
+                </div>
+                <div class="grid md:grid-cols-3 gap-3 text-sm mt-3">
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-100">
+                        <div class="text-xs font-bold text-fuji mb-1">① 購票網站與時機</div>
+                        <div class="font-bold text-ink">Highwaybus.com（新宿線）</div>
+                        <p class="text-slate-600 text-xs mt-1">出發前 2–3 天看準晴天預報再上網刷卡（若選 2/8 週日則建議 2/6–2/7 搶票）。選 <strong>右側靠窗 C、D 排</strong> 看富士山。</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-100">
+                        <div class="text-xs font-bold text-fuji mb-1">② 去程精準上/下車站名</div>
+                        <div class="font-bold text-ink">新宿 ➔ 富士山山中湖</div>
+                        <p class="text-slate-600 text-xs mt-1">下車站務必選 <strong>「富士山山中湖（富士山飯店入口）」</strong>！千萬別坐到更裡面的「山中湖旭日丘」。</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-100">
+                        <div class="text-xs font-bold text-fuji mb-1">③ 回程上車點</div>
+                        <div class="font-bold text-ink">富士山站（富士吉田站）</div>
+                        <p class="text-slate-600 text-xs mt-1">逛完 Q-STA 展望台直接從樓下搭 <strong>17:00 左右</strong> 班次返回新宿（或訂回東京站）。</p>
+                    </div>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <a href="https://www.highwaybus.com/gp/inbound/inbPlanList?lineId=110&upDownKbn=2" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 bg-fuji text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow hover:bg-blue-800 transition">
+                        <span>🔗</span> 前往 Highwaybus 訂票網站
+                    </a>
+                </div>
+            </div>
+
+            <!-- Busta 新宿零迷路動線 -->
+            <div class="jp-card p-5">
+                <h3 class="text-lg font-black text-pine mb-3 flex items-center gap-2">
+                    <span>🚶</span> 早上從上野去「Busta 新宿」零迷路 3 步驟
+                </h3>
+                <div class="grid md:grid-cols-3 gap-3 text-sm">
+                    <div class="bg-washi p-3.5 rounded-xl">
+                        <span class="inline-block bg-pine text-white text-xs font-bold px-2 py-0.5 rounded mb-1">Step 1</span>
+                        <div class="font-bold">JR 御徒町 ➔ JR 新宿站</div>
+                        <p class="text-slate-600 text-xs mt-1">搭 JR 山手線（外回）直達新宿（約 25 分）。<strong>務必往列車「車尾（南端）」方向移動</strong>。</p>
+                    </div>
+                    <div class="bg-washi p-3.5 rounded-xl">
+                        <span class="inline-block bg-pine text-white text-xs font-bold px-2 py-0.5 rounded mb-1">Step 2</span>
+                        <div class="font-bold">認明「新南改札」出站</div>
+                        <p class="text-slate-600 text-xs mt-1">出剪票口正前方就是全室內連通的 <strong>Busta 新宿大樓</strong>，完全不用過馬路或走地下迷宮。</p>
+                    </div>
+                    <div class="bg-washi p-3.5 rounded-xl">
+                        <span class="inline-block bg-pine text-white text-xs font-bold px-2 py-0.5 rounded mb-1">Step 3</span>
+                        <div class="font-bold">搭電梯直上 4 樓候車室</div>
+                        <p class="text-slate-600 text-xs mt-1">4 樓有暖氣、座位與超商。看電子看板月台（如 A1/B4），直接出示手機 <strong>WEB 乘車券</strong> 上車。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 富士山當日完整時間表 -->
+            <div class="jp-card p-5">
+                <h3 class="text-lg font-black text-ink mb-4">🗻 山中湖白鳥濱 ＋ 忍野八海 ＋ Q-STA 順遊時間表</h3>
+                <div class="space-y-4">
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
+                            <span class="font-black text-fuji">08:15 – 10:25 ｜ 新宿高速巴士 ➔ 富士山山中湖</span>
+                            <span class="text-xs bg-fuji/10 text-fuji font-bold px-2.5 py-0.5 rounded-full">建議 07:25 從上野飯店出發</span>
+                        </div>
+                        <p class="text-sm text-slate-600">
+                            車上設有洗手間，長輩安心。抵達 <strong>「富士山山中湖（富士山飯店入口）」</strong> 下車後，<strong>第一步先用手機拍下對向站牌的公車時刻表</strong>！
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
+                            <span class="font-black text-pine">10:30 – 12:30 ｜ 山中湖白鳥濱看天鵝 ＆ 小作午餐</span>
+                            <span class="text-xs bg-pine/10 text-pine font-bold px-2.5 py-0.5 rounded-full">全程步行 3–5 分鐘內</span>
+                        </div>
+                        <p class="text-sm text-slate-600">
+                            過馬路步行 3 分鐘即達西北側湖岸（白鳥濱看天鵝區），拍優雅天鵝與無遮蔽富士山倒影。中午步行 5 分鐘至 <strong>「甲州ほうとう 小作 山中湖店」</strong> 吃熱騰騰鐵鍋南瓜餺飥麵。
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200">
+                        <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
+                            <span class="font-black text-amberWarm">12:45 – 14:30 ｜ 忍野八海清澈湧泉散步</span>
+                            <span class="text-xs bg-amber-200/70 text-amber-900 font-bold px-2.5 py-0.5 rounded-full">巴士約 10–15 分鐘</span>
+                        </div>
+                        <p class="text-sm text-slate-700">
+                            搭乘富士急行路線公車（刷西瓜卡）至「忍野八海」，逛古樸茅草屋與富士山雪水湧泉池、吃現烤草餅。<br>
+                            <span class="text-xs font-bold text-red-700">💡 零乾等秘訣：當地公車約 30–60 分鐘一班，若吃完午餐發現要等很久，直接請「小作」餐廳櫃檯幫忙叫計程車（車程 10 分鐘，3 人分攤超划算）。</span>
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
+                            <span class="font-black text-fuji">15:05 – 16:45 ｜ 富士山站 Q-STA 6樓免費展望台</span>
+                            <span class="text-xs bg-fuji/10 text-fuji font-bold px-2.5 py-0.5 rounded-full">巴士約 15–20 分鐘</span>
+                        </div>
+                        <p class="text-sm text-slate-600">
+                            從忍野八海搭公車至「富士山站」，直接搭電梯上共構商場 <strong>Q-STA 6樓屋頂展望台</strong> 拍超大富士山與火車進站，再到樓下商場吹暖氣採買伴手禮、喝咖啡。
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex flex-wrap justify-between items-center gap-1 mb-1">
+                            <span class="font-black text-ink">17:00 – 19:10 ｜ 富士山站搭高速巴士返回東京</span>
+                            <span class="text-xs bg-slate-200 text-slate-700 font-bold px-2.5 py-0.5 rounded-full">結束充實的一天</span>
+                        </div>
+                        <p class="text-sm text-slate-600">
+                            在 Q-STA 樓下「富士山站」高速巴士月台搭車返回新宿（或東京站），再轉 JR 回到上野御徒町享用晚餐。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 分頁 4：日光二日遊 (2/10 - 2/11)            -->
+        <!-- ========================================== -->
+        <section id="tab-nikko" class="tab-panel hidden space-y-6">
+            <!-- 輕裝行李核心策略 -->
+            <div class="jp-card p-5 bg-gradient-to-r from-emerald-50 to-white border-l-4 border-l-pine">
+                <h2 class="text-lg font-black text-pine flex items-center gap-2 mb-1">
+                    <span>🎒</span> 日光兩天一夜「零負擔輕裝策略」
+                </h2>
+                <p class="text-sm text-slate-700">
+                    2/10 早上退房時，將<strong>3 件大行李箱全部免費寄放在上野飯店（hotel MONday Premium）</strong>，每人只需背一個輕便過夜包搭東武特急前往日光，上下月台與搭乘山區巴士完全不費力！
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <!-- Day 1: 2/10 -->
+                <div class="jp-card p-5 space-y-3">
+                    <div class="inline-block bg-pine text-white text-xs font-bold px-3 py-1 rounded-full">2/10 (二) 日光 Day 1</div>
+                    <h3 class="text-lg font-black text-ink">世界遺產社寺巡禮 ＆ 溫泉旅宿</h3>
+                    <ul class="space-y-2.5 text-sm text-slate-600">
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-pine shrink-0">上午｜</span>
+                            <span>從上野搭地鐵銀座線（僅 5 分鐘）至「淺草站」，轉乘<strong>東武鐵道特急列車</strong>（全車指定席）直達「東武日光站」（車程約 1 小時 50 分）。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-pine shrink-0">中午｜</span>
+                            <span>東武日光站前品嚐日光名物「湯波（腐皮）料理」或日光布丁，先將過夜包寄放車站或飯店接駁車。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-pine shrink-0">下午｜</span>
+                            <span>搭巴士上山參觀世界遺產<strong>「日光東照宮」</strong>（陽明門、三猿、眠貓）、輪王寺與二荒山神社（社寺區有部分石階，建議穿防滑好走的鞋，慢走欣賞）。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-amberWarm shrink-0">晚上｜</span>
+                            <span>入住日光溫泉飯店，享受暖呼呼的冬季溫泉與豐盛日式會席/懷石晚餐。</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Day 2: 2/11 -->
+                <div class="jp-card p-5 space-y-3">
+                    <div class="inline-block bg-fuji text-white text-xs font-bold px-3 py-1 rounded-full">2/11 (三) 日光 Day 2</div>
+                    <h3 class="text-lg font-black text-ink">奧日光湖瀑大景 ➔ 返回上野</h3>
+                    <ul class="space-y-2.5 text-sm text-slate-600">
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-fuji shrink-0">上午｜</span>
+                            <span>早餐後搭乘東武巴士沿「伊呂波山道」上山，前往日本三大名瀑之一<strong>「華嚴瀑布」</strong>（可搭電梯直達觀瀑台近距離看壯觀冰瀑）與<strong>「中禪寺湖」</strong>湖畔散步。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-fuji shrink-0">中午｜</span>
+                            <span>中禪寺湖畔享用午餐（熱湯麵或日式定食），隨後搭巴士下山返回東武日光站（預留山路車程時間）。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-fuji shrink-0">下午｜</span>
+                            <span>於東武日光站購買伴手禮，搭乘午後班次<strong>東武特急列車</strong>返回淺草站，轉地鐵 5 分鐘回到上野飯店領取大行李並辦理入住。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold text-pine shrink-0">晚上｜</span>
+                            <span>在上野/御徒町飯店周邊輕鬆吃晚餐、早點休息恢復體力。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 分頁 5：交通與指路卡 (Tips & Flashcards)    -->
+        <!-- ========================================== -->
+        <section id="tab-tips" class="tab-panel hidden space-y-6">
+            <!-- Skyliner 免排隊神招 -->
+            <div class="jp-card p-5 border-l-4 border-l-amberWarm">
+                <div class="flex items-center gap-2 text-amberWarm font-black text-lg mb-2">
+                    <span>🚄</span> 成田機場 Skyliner「免排隊兩段式搭法」
+                </div>
+                <p class="text-sm text-slate-600 mb-3">
+                    若抵達成田機場時尚未買好網路兌換券，且發現大廳售票櫃檯或臉部辨識機器大排長龍，請直接用這招<strong>1 分鐘進站上車</strong>：
+                </p>
+                <div class="grid md:grid-cols-2 gap-3 text-sm">
+                    <div class="bg-amber-50/70 p-3.5 rounded-xl border border-amber-200">
+                        <div class="font-black text-ink">第 1 步：直接刷西瓜卡進閘門</div>
+                        <p class="text-slate-600 text-xs mt-1">
+                            每人拿自己的 <strong>Suica / ICOCA 西瓜卡</strong> 直接感應京成電鐵閘門進入付費區（支付基本車資），搭手扶梯下到 Skyliner 月台。
+                        </p>
+                    </div>
+                    <div class="bg-amber-50/70 p-3.5 rounded-xl border border-amber-200">
+                        <div class="font-black text-ink">第 2 步：月台機器買 ¥1,300 特急券</div>
+                        <p class="text-slate-600 text-xs mt-1">
+                            手扶梯一下到月台就有專賣「Liner Ticket（特急券）」的機器（幾乎沒人排隊），購買 <strong>¥1,300 對號座車票</strong> 即可依車廂座位入座！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 實用日文放大指路卡（點擊可全螢幕放大給日本人看） -->
+            <div class="jp-card p-5">
+                <h3 class="text-lg font-black text-ink mb-1 flex items-center gap-2">
+                    <span>🗣️</span> 實用日文指路卡（點擊卡片可全螢幕放大）
+                </h3>
+                <p class="text-xs md:text-sm text-slate-500 mb-4">遇到需要搭計程車或請店員幫忙叫車時，直接點開卡片拿給對方看即可：</p>
+
+                <div class="grid md:grid-cols-2 gap-3">
+                    <button onclick="openFlashcard('請出示給計程車司機看', 'ホテルマンデープレミアム上野御徒町までお願いします。\n（〒110-0016 東京都台東区台東3-41-7）', '請載我們到 hotel MONday Premium 上野御徒町')" class="text-left p-4 rounded-xl border-2 border-slate-200 hover:border-fuji bg-washi transition active:scale-98">
+                        <div class="text-xs font-bold text-fuji mb-1">🚕 回上野飯店（給司機看）</div>
+                        <div class="font-black text-base text-ink">ホテルマンデープレミアム上野御徒町までお願いします</div>
+                        <div class="text-xs text-slate-500 mt-1">點擊放大全螢幕顯示 ➔</div>
+                    </button>
+
+                    <button onclick="openFlashcard('請出示給餐廳或遊客中心櫃檯看', 'すみません、タクシーを1台呼んでいただけますか？（大人3名です）', '不好意思，可以幫我們叫一台計程車嗎？（3位大人）')" class="text-left p-4 rounded-xl border-2 border-slate-200 hover:border-pine bg-washi transition active:scale-98">
+                        <div class="text-xs font-bold text-pine mb-1">📞 請店員代叫計程車（山中湖/日光實用）</div>
+                        <div class="font-black text-base text-ink">すみません、タクシーを1台呼んでいただけますか？</div>
+                        <div class="text-xs text-slate-500 mt-1">點擊放大全螢幕顯示 ➔</div>
+                    </button>
+
+                    <button onclick="openFlashcard('請出示給山中湖計程車司機看', '忍野八海（おしのはっかい）までお願いします。', '請載我們到忍野八海。')" class="text-left p-4 rounded-xl border-2 border-slate-200 hover:border-fuji bg-washi transition active:scale-98">
+                        <div class="text-xs font-bold text-fuji mb-1">🗻 山中湖 ➔ 前往忍野八海</div>
+                        <div class="font-black text-base text-ink">忍野八海（おしのはっかい）までお願いします。</div>
+                        <div class="text-xs text-slate-500 mt-1">點擊放大全螢幕顯示 ➔</div>
+                    </button>
+
+                    <button onclick="openFlashcard('請出示給站務人員看', 'エレベーターはどこにありますか？', '請問電梯在哪裡？')" class="text-left p-4 rounded-xl border-2 border-slate-200 hover:border-amberWarm bg-washi transition active:scale-98">
+                        <div class="text-xs font-bold text-amberWarm mb-1">🛗 車站內尋找無障礙電梯</div>
+                        <div class="font-black text-base text-ink">エレベーターはどこにありますか？</div>
+                        <div class="text-xs text-slate-500 mt-1">點擊放大全螢幕顯示 ➔</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2月冬季孝親保暖與防滑叮嚀 -->
+            <div class="jp-card p-5">
+                <h3 class="text-lg font-black text-ink mb-3 flex items-center gap-2">
+                    <span>🧣</span> 2月冬季孝親保暖與防滑叮嚀
+                </h3>
+                <ul class="space-y-2 text-sm text-slate-700 list-disc list-inside">
+                    <li><strong>洋蔥式穿法最實用</strong>：東京室內百貨、電車與巴士暖氣都很強，建議內穿發熱衣＋好穿脫的開襟毛衣/刷毛外套，外搭防風羽絨衣。</li>
+                    <li><strong>山中湖與日光防風配件</strong>：山中湖白鳥濱湖畔與奧日光華嚴瀑布氣溫常在 <strong>0°C 左右</strong>，務必準備毛帽（遮耳朵）、圍巾與觸控手套。</li>
+                    <li><strong>鞋底防滑很重要</strong>：2 月日光東照宮石階與中禪寺湖畔偶有殘雪或薄冰，建議穿鞋底刻紋深、具防滑功能的運動健走鞋。</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 底部版權與快速回頂部列 -->
+    <footer class="max-w-4xl mx-auto px-4 pt-8 pb-6 text-center text-xs text-slate-500">
+        <p>專為 2/7–2/13 東京・富士山・日光 3人孝親自由行整理</p>
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="mt-3 inline-flex items-center gap-1 bg-white border border-slate-300 px-4 py-2 rounded-full font-bold text-ink shadow-sm hover:bg-slate-50 transition">
+            <span>⬆️</span> 回到頁面最上方
+        </button>
+    </footer>
+
+    <script>
+        // ==========================================
+        // 1. 7天行程資料與「彈性天氣日」動態切換邏輯
+        // ==========================================
+        const baseDays = {
+            '2/7': {
+                date: '2/7', weekday: '六',
+                title: '抵達東京 ➔ 上野周邊逛街＋阿美橫町',
+                badge: '抵達日・輕鬆採買',
+                badgeColor: 'bg-pine text-white',
+                highlights: '成田機場搭 Skyliner 直達京成上野 ➔ 飯店放行李 ➔ 上野星星點(🌟) ➔ 阿美橫町由北往南逛 ➔ PARCO_ya/松坂屋 ➔ 晚餐(Negishi牛舌/燒肉陽山道) ➔ mont-bell ➔ 多慶屋採買',
+                stay: 'hotel MONday Premium 上野御徒町',
+                actionTab: 'day1', actionText: '查看 Day 1 詳細動線 ➔'
+            },
+            '2/10': {
+                date: '2/10', weekday: '二',
+                title: '日光二日遊（Day 1：世界遺產社寺巡禮）',
+                badge: '外宿溫泉・大行李寄上野',
+                badgeColor: 'bg-amberWarm text-white',
+                highlights: '大行李箱免費寄放上野飯店，背過夜包出發 ➔ 淺草搭東武特急直達東武日光 ➔ 湯波腐皮料理午餐 ➔ 參觀日光東照宮、輪王寺 ➔ 入住日光溫泉飯店泡湯享懷石料理',
+                stay: '日光溫泉旅館（輕裝過夜）',
+                actionTab: 'nikko', actionText: '查看日光行程細節 ➔'
+            },
+            '2/11': {
+                date: '2/11', weekday: '三',
+                title: '日光二日遊（Day 2：奧日光湖瀑大景）➔ 返回上野',
+                badge: '壯麗湖瀑・返回基地',
+                badgeColor: 'bg-amberWarm text-white',
+                highlights: '上午搭巴士上山欣賞「華嚴瀑布」與「中禪寺湖」湖光山色 ➔ 湖畔午餐 ➔ 下午搭東武特急返回淺草／上野 ➔ 領取大行李並於飯店周邊輕鬆晚餐',
+                stay: 'hotel MONday Premium 上野御徒町',
+                actionTab: 'nikko', actionText: '查看日光行程細節 ➔'
+            },
+            '2/13': {
+                date: '2/13', weekday: '五',
+                title: '上野最後補貨 ➔ 前往成田機場返台',
+                badge: '平安返家',
+                badgeColor: 'bg-slate-700 text-white',
+                highlights: '飯店早餐與整理行李 ➔ 上午視班機時間至吉池生鮮超市 / 多慶屋 / 阿美橫町做最後伴手禮補貨 ➔ 搭計程車 5 分鐘至京成上野站 ➔ Skyliner 直達成田機場',
+                stay: '溫暖的家',
+                actionTab: 'tips', actionText: '查看 Skyliner 搭車提醒 ➔'
+            }
+        };
+
+        // 三個彈性活動模組
+        const activityFuji = {
+            title: '富士山一日遊（山中湖白鳥濱＋忍野八海＋Q-STA）',
+            badge: '⚡ 晴天首選・富士山日',
+            badgeColor: 'bg-fuji text-white',
+            highlights: '新宿 Busta 4樓搭高速巴士直達「富士山山中湖」➔ 步行 3 分鐘白鳥濱看天鵝拍富士山倒影 ➔ 小作南瓜餺飥麵午餐 ➔ 忍野八海散步 ➔ 富士山站 Q-STA 6樓免費展望台 ➔ 傍晚巴士返東京',
+            stay: 'hotel MONday Premium 上野御徒町',
+            actionTab: 'fuji', actionText: '查看富士山巴士與時間表 ➔'
+        };
+
+        const activityMeiji = {
+            title: '明治神宮 ➔ 表參道・澀谷悠閒遊',
+            badge: '⚡ 彈性市區備案 A',
+            badgeColor: 'bg-emerald-700 text-white',
+            highlights: '上午參拜平坦森林步道的「明治神宮」➔ 下午表參道林蔭大道散步、精品建築巡禮與老牌咖啡廳下午茶 ➔ 澀谷百貨逛街（善用無障礙電梯出口，步行輕鬆）',
+            stay: 'hotel MONday Premium 上野御徒町',
+            actionTab: null, actionText: ''
+        };
+
+        const activityGinza = {
+            title: '東京車站 ➔ 銀座老字號與百貨巡禮',
+            badge: '⚡ 彈性市區備案 B',
+            badgeColor: 'bg-emerald-700 text-white',
+            highlights: 'JR 山手線 8 分鐘直達東京車站 ➔ 丸之內紅磚車站拍照與一番街伴手禮採買 ➔ 下午銀座中央通步行街逛街（松屋銀座/三越百貨）、百年咖啡廳歇腳 ➔ 晚上回上野補齊採買',
+            stay: 'hotel MONday Premium 上野御徒町',
+            actionTab: null, actionText: ''
+        };
+
+        function setFujiDay(selectedDate) {
+            // 更新按鈕樣式
+            document.querySelectorAll('.fuji-day-btn').forEach(btn => {
+                btn.classList.remove('bg-fuji', 'text-white', 'shadow');
+                btn.classList.add('bg-white', 'text-fuji', 'border', 'border-fuji/30');
+            });
+            const activeBtn = document.getElementById('fuji-opt-' + selectedDate.replace('/', '-'));
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-white', 'text-fuji', 'border', 'border-fuji/30');
+                activeBtn.classList.add('bg-fuji', 'text-white', 'shadow');
+            }
+
+            // 分配 2/8, 2/9, 2/12 行程
+            let flexMap = {};
+            if (selectedDate === '2/9') {
+                flexMap['2/8'] = { date: '2/8', weekday: '日', ...activityMeiji };
+                flexMap['2/9'] = { date: '2/9', weekday: '一', ...activityFuji };
+                flexMap['2/12'] = { date: '2/12', weekday: '四', ...activityGinza };
+            } else if (selectedDate === '2/8') {
+                flexMap['2/8'] = { date: '2/8', weekday: '日', ...activityFuji };
+                flexMap['2/9'] = { date: '2/9', weekday: '一', ...activityMeiji };
+                flexMap['2/12'] = { date: '2/12', weekday: '四', ...activityGinza };
+            } else if (selectedDate === '2/12') {
+                flexMap['2/8'] = { date: '2/8', weekday: '日', ...activityMeiji };
+                flexMap['2/9'] = { date: '2/9', weekday: '一', ...activityGinza };
+                flexMap['2/12'] = { date: '2/12', weekday: '四', ...activityFuji };
+            }
+
+            const orderedDates = ['2/7', '2/8', '2/9', '2/10', '2/11', '2/12', '2/13'];
+            const container = document.getElementById('schedule-list');
+            container.innerHTML = '';
+
+            orderedDates.forEach(d => {
+                const item = baseDays[d] || flexMap[d];
+                const isFuji = item.title.includes('富士山一日遊');
+                const cardBorder = isFuji ? 'border-2 border-fuji bg-blue-50/30' : '';
+
+                const cardHTML = `
+                    <div class="jp-card p-4 md:p-5 ${cardBorder} transition">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg md:text-xl font-black text-ink">${item.date} <span class="text-sm font-bold text-slate-500">(${item.weekday})</span></span>
+                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${item.badgeColor}">${item.badge}</span>
+                            </div>
+                            <span class="text-xs text-slate-500 font-medium">🏨 ${item.stay}</span>
+                        </div>
+                        <h3 class="text-base md:text-lg font-black text-ink mb-1.5">${item.title}</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">${item.highlights}</p>
+                        ${item.actionTab ? `
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex justify-end">
+                                <button onclick="switchTab('${item.actionTab}')" class="text-xs md:text-sm font-bold text-fuji hover:underline">
+                                    ${item.actionText}
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // ==========================================
+        // 2. 分頁導覽切換 (Tab Navigation)
+        // ==========================================
+        function switchTab(tabId) {
+            // 隱藏所有面板
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            // 顯示目標面板
+            const target = document.getElementById('tab-' + tabId);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            // 更新按鈕狀態
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.remove('bg-white', 'text-ink', 'hover:bg-slate-100', 'border', 'border-slate-200');
+                    btn.classList.add('bg-pine', 'text-white', 'shadow-sm');
+                } else {
+                    btn.classList.remove('bg-pine', 'text-white', 'shadow-sm');
+                    btn.classList.add('bg-white', 'text-ink', 'hover:bg-slate-100', 'border', 'border-slate-200');
+                }
+            });
+
+            // 捲動回分頁列上方方便閱讀
+            window.scrollTo({ top: document.querySelector('nav').offsetTop - 10, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // 3. 長輩加大字體切換 (Font Size Toggle)
+        // ==========================================
+        function setFontSize(size) {
+            const htmlEl = document.documentElement;
+            const btnNormal = document.getElementById('btn-font-normal');
+            const btnLarge = document.getElementById('btn-font-large');
+
+            if (size === 'large') {
+                htmlEl.classList.add('font-large');
+                btnLarge.classList.add('bg-white', 'text-pine', 'shadow');
+                btnLarge.classList.remove('text-white/90');
+                btnNormal.classList.remove('bg-white', 'text-pine', 'shadow');
+                btnNormal.classList.add('text-white/90');
+                showToast('已切換為「長輩加大字體」');
+            } else {
+                htmlEl.classList.remove('font-large');
+                btnNormal.classList.add('bg-white', 'text-pine', 'shadow');
+                btnNormal.classList.remove('text-white/90');
+                btnLarge.classList.remove('bg-white', 'text-pine', 'shadow');
+                btnLarge.classList.add('text-white/90');
+                showToast('已恢復為「標準字體」');
+            }
+        }
+
+        // ==========================================
+        // 4. 一鍵複製文字 (相容 iframe 環境)
+        // ==========================================
+        function copyText(text, successMessage) {
+            try {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = text;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast(successMessage || '已複製成功！');
+            } catch (err) {
+                showToast('請長按地址手動複製');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = msg;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2200);
+        }
+
+        // ==========================================
+        // 5. 全螢幕放大指路卡 (給日本司機/店員看)
+        // ==========================================
+        function openFlashcard(subtitle, jpText, zhText) {
+            document.getElementById('fc-subtitle').textContent = subtitle;
+            document.getElementById('fc-jp').innerText = jpText;
+            document.getElementById('fc-zh').textContent = '（' + zhText + '）';
+            const modal = document.getElementById('flashcard-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeFlashcard() {
+            const modal = document.getElementById('flashcard-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // 初始化預設總覽行程
+        window.addEventListener('DOMContentLoaded', () => {
+            setFujiDay('2/9');
+        });
+    </script>
+</body>
+</html>
